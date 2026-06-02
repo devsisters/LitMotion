@@ -61,7 +61,7 @@ namespace LitMotion.Animation.Editor
                 return new PropertyField(property);
             }
 
-            var animationComponentType = property.managedReferenceValue?.GetType();
+            var animationComponentType = property.GetDeclaredObject()?.GetType();
             SerializedProperty copiedProperty = property.Copy();
 
             var propertyPath = copiedProperty.propertyPath;
