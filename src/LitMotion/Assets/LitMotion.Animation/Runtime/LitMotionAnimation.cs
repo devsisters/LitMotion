@@ -6,6 +6,7 @@ using UnityEngine;
 namespace LitMotion.Animation
 {
     [AddComponentMenu("LitMotion Animation")]
+    [HelpURL("https://annulusgames.github.io/LitMotion")]
     public sealed class LitMotionAnimation : MonoBehaviour, ISerializationCallbackReceiver
     {
         enum AutoPlayMode
