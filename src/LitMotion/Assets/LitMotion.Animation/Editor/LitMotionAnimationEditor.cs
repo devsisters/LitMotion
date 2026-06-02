@@ -8,7 +8,7 @@ using UnityEditor.SceneManagement;
 namespace LitMotion.Animation.Editor
 {
     [CustomEditor(typeof(LitMotionAnimation))]
-    public sealed class LitMotionAnimationEditor : UnityEditor.Editor
+    public sealed partial class LitMotionAnimationEditor : UnityEditor.Editor
     {
         SerializedProperty componentsProperty;
         int prevArraySize;
@@ -31,6 +31,11 @@ namespace LitMotion.Animation.Editor
                 componentsProperty.InsertArrayElementAtIndex(componentsProperty.arraySize);
                 var property = componentsProperty.GetArrayElementAtIndex(last);
                 property.managedReferenceValue = ReflectionHelper.CreateDefaultInstance(type);
+
+                // Devsisters Custom
+                SetDefaultTargetObject(property, type);
+                // Devsisters Custom
+
                 serializedObject.ApplyModifiedProperties();
             };
 
@@ -211,7 +216,8 @@ namespace LitMotion.Animation.Editor
                     flexGrow = 1f,
                 }
             };
-            var playButton = new Button(() => {
+            var playButton = new Button(() =>
+            {
                 ((LitMotionAnimation)target).Play();
                 if (PrefabStageUtility.GetCurrentPrefabStage() != null)
                 {
@@ -315,7 +321,9 @@ namespace LitMotion.Animation.Editor
                     if (property.name == "enabled") continue;
                     isFirst = false;
 
-                    view.Add(new PropertyField(property));
+                    // Devsisters Custom
+                    view.Add(CreateTargetPropertyField(property));
+                    // Devsisters Custom
                 }
             }
 
@@ -375,7 +383,7 @@ namespace LitMotion.Animation.Editor
         void OnPrefabStageClosing(PrefabStage stage)
         {
             PrefabStage.prefabStageClosing -= OnPrefabStageClosing;
-            foreach (var  i in stage.prefabContentsRoot.GetComponentsInChildren<LitMotionAnimation>(true))
+            foreach (var i in stage.prefabContentsRoot.GetComponentsInChildren<LitMotionAnimation>(true))
             {
                 i.Stop();
             }
