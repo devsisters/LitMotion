@@ -21,7 +21,10 @@ namespace LitMotion.Animation
             Sequential
         }
 
-        [SerializeField] AutoPlayMode autoPlayMode = AutoPlayMode.OnStart;
+        // Devsisters Custom: AutoPlayMode.OnStart대신 OnEnable를 기본으로 설정
+        [SerializeField] AutoPlayMode autoPlayMode = AutoPlayMode.OnEnable;
+        // Devsisters Custom
+
         [SerializeField] AnimationMode animationMode;
 
         [SerializeReference]
