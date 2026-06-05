@@ -17,6 +17,7 @@ namespace LitMotion
     {
         public bool CancelOnError;
         public bool SkipValuesDuringDelay;
+        public bool SkipValuesAfterPlay;
         public byte StateCount;
         public object State0;
         public object State1;

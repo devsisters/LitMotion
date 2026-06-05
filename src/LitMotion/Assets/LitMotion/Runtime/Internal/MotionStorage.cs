@@ -123,6 +123,7 @@ namespace LitMotion
 
             managedDataRef.CancelOnError = buffer.CancelOnError;
             managedDataRef.SkipValuesDuringDelay = buffer.SkipValuesDuringDelay;
+            managedDataRef.SkipValuesAfterPlay = buffer.SkipValuesAfterPlay;
             managedDataRef.UpdateAction = buffer.UpdateAction;
             managedDataRef.OnLoopCompleteAction = buffer.OnLoopCompleteAction;
             managedDataRef.OnCancelAction = buffer.OnCancelAction;
@@ -392,7 +393,7 @@ namespace LitMotion
                 var status = state.Status;
                 ref var managedData = ref managedDataArray[denseIndex];
 
-                if (status is MotionStatus.Playing or MotionStatus.Completed || (status == MotionStatus.Delayed && !managedData.SkipValuesDuringDelay))
+                if (status is MotionStatus.Playing || (status == MotionStatus.Completed && (!managedData.SkipValuesAfterPlay || state.WasStatusChanged)) || (status == MotionStatus.Delayed && !managedData.SkipValuesDuringDelay))
                 {
                     try
                     {

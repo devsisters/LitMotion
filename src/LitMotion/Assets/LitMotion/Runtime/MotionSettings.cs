@@ -83,6 +83,12 @@ namespace LitMotion
             init => skipValuesDuringDelay = value;
         }
 
+        public bool SkipValuesAfterPlay
+        {
+            get => skipValuesAfterPlay;
+            init => skipValuesAfterPlay = value;
+        }
+
         public bool ImmediateBind
         {
             get => immediateBind;
@@ -106,7 +112,8 @@ namespace LitMotion
         [SerializeField] int loops = 1;
         [SerializeField] LoopType loopType;
         [SerializeField] bool cancelOnError;
-        [SerializeField] bool skipValuesDuringDelay;
+        [SerializeField] bool skipValuesDuringDelay = true;
+        [SerializeField] bool skipValuesAfterPlay = true;
         [SerializeField] bool immediateBind;
 
         internal IMotionScheduler scheduler;

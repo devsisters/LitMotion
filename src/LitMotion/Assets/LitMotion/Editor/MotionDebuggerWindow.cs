@@ -192,6 +192,7 @@ namespace LitMotion.Editor
                         EditorGUILayout.Space(4);
                         GenericField("Cancel On Error", managedDataRef.CancelOnError);
                         GenericField("Skip Values During Delay", managedDataRef.SkipValuesDuringDelay);
+                        GenericField("Skip Values After Play", managedDataRef.SkipValuesAfterPlay);
 
                         EditorGUILayout.Space(4);
                         GenericField("State[0]", managedDataRef.State0);

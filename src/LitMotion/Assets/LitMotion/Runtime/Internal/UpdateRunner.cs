@@ -77,7 +77,7 @@ namespace LitMotion
                     bool isPlaying   = status == MotionStatus.Playing;
                     bool isCompleted = status == MotionStatus.Completed;
                     bool isDelayed   = status == MotionStatus.Delayed;
-                    bool canUpdate = isPlaying || isCompleted || (isDelayed && !managedData.SkipValuesDuringDelay);
+                    bool canUpdate = isPlaying || (isCompleted && (!managedData.SkipValuesAfterPlay || state.WasStatusChanged)) || (isDelayed && !managedData.SkipValuesDuringDelay);
                     bool loopComplete = (isPlaying || isCompleted || isDelayed) && state.WasLoopCompleted;
                     if (canUpdate)
                     {

@@ -59,6 +59,7 @@ namespace LitMotion
 
             buffer.CancelOnError = default;
             buffer.SkipValuesDuringDelay = default;
+            buffer.SkipValuesAfterPlay = default;
 
             buffer.Scheduler = default;
 
@@ -87,6 +88,7 @@ namespace LitMotion
         public LoopType LoopType;
         public bool CancelOnError;
         public bool SkipValuesDuringDelay;
+        public bool SkipValuesAfterPlay;
         public bool ImmediateBind = true;
 
         public object State0;
@@ -251,6 +253,19 @@ namespace LitMotion
         }
 
         /// <summary>
+        /// Stop updating values after the motion has finished playing. This prevents a completed (but preserved) motion from continuing to overwrite its target value every frame.
+        /// </summary>
+        /// <param name="skipValuesAfterPlay">Whether to skip updating values after the motion is completed</param>
+        /// <returns>This builder to allow chaining multiple method calls.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly MotionBuilder<TValue, TOptions, TAdapter> WithSkipValuesAfterPlay(bool skipValuesAfterPlay = true)
+        {
+            CheckBuffer();
+            buffer.SkipValuesAfterPlay = skipValuesAfterPlay;
+            return this;
+        }
+
+        /// <summary>
         /// Bind values ​​immediately when scheduling the motion.
         /// </summary>
         /// <param name="immediateBind">Whether to bind on sheduling</param>
@@ -394,6 +409,7 @@ namespace LitMotion
                 LoopType = buffer.LoopType,
                 CancelOnError = buffer.CancelOnError,
                 SkipValuesDuringDelay = buffer.SkipValuesDuringDelay,
+                SkipValuesAfterPlay = buffer.SkipValuesAfterPlay,
                 ImmediateBind = buffer.ImmediateBind,
                 Scheduler = buffer.Scheduler,
             };
