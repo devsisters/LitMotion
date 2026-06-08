@@ -70,7 +70,7 @@ namespace LitMotion.Animation.Editor
 
             // useWorldSpace is ignored for RectTransform targets (they always animate anchoredPosition3D),
             // so disable the field to make that clear. Only applies to position animations.
-            if (!IsTransformPositionAnimation(componentProperty.GetDeclaredObject()?.GetType()))
+            if (!IsTransformPositionAnimation(property.GetDeclaredObject()?.GetType()))
             {
                 return field;
             }
