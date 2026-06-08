@@ -39,6 +39,8 @@ namespace LitMotion.Animation
 
         public IReadOnlyList<LitMotionAnimationComponent> Components => components;
 
+        public bool IsStopped { get; private set; }
+
         void OnEnable()
         {
             if (autoPlayMode == AutoPlayMode.OnEnable)
@@ -83,6 +85,8 @@ namespace LitMotion.Animation
 
         public void Play()
         {
+            IsStopped = false;
+
             var isPlaying = false;
 
             foreach (var component in playingComponents.AsSpan())
@@ -167,6 +171,8 @@ namespace LitMotion.Animation
 
             playingComponents.Clear();
             queue.Clear();
+
+            IsStopped = true;
         }
 
         public void Restart()
