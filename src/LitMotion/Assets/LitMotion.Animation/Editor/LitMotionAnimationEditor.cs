@@ -313,6 +313,10 @@ namespace LitMotion.Animation.Editor
 
                 view.Foldout.BindProperty(property);
 
+                // Devsisters Custom
+                var componentProperty = property.Copy();
+                // Devsisters Custom
+
                 var endProperty = property.GetEndProperty();
                 var isFirst = true;
                 while (property.NextVisible(isFirst))
@@ -322,7 +326,7 @@ namespace LitMotion.Animation.Editor
                     isFirst = false;
 
                     // Devsisters Custom
-                    view.Add(CreateTargetPropertyField(property));
+                    view.Add(CreateComponentPropertyField(componentProperty, property));
                     // Devsisters Custom
                 }
             }

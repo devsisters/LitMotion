@@ -14,11 +14,17 @@ namespace LitMotion.Animation.Components
 
         protected override Vector3 GetValue(Transform target)
         {
+            if (target is RectTransform rectTransform) return rectTransform.anchoredPosition3D;
             return useWorldSpace ? target.position : target.localPosition;
         }
 
         protected override void SetValue(Transform target, in Vector3 value)
         {
+            if (target is RectTransform rectTransform)
+            {
+                rectTransform.anchoredPosition3D = value;
+                return;
+            }
             if (useWorldSpace) target.position = value;
             else target.localPosition = value;
         }

@@ -54,6 +54,57 @@ namespace LitMotion.Animation.Editor
                 || targetType.IsInterface;
         }
 
+        VisualElement CreateComponentPropertyField(SerializedProperty componentProperty, SerializedProperty property)
+        {
+            if (property.name == "useWorldSpace")
+            {
+                return CreateUseWorldSpacePropertyField(componentProperty, property);
+            }
+
+            return CreateTargetPropertyField(property);
+        }
+
+        VisualElement CreateUseWorldSpacePropertyField(SerializedProperty componentProperty, SerializedProperty property)
+        {
+            var field = new PropertyField(property.Copy());
+
+            // useWorldSpace is ignored for RectTransform targets (they always animate anchoredPosition3D),
+            // so disable the field to make that clear. Only applies to position animations.
+            if (!IsTransformPositionAnimation(componentProperty.GetDeclaredObject()?.GetType()))
+            {
+                return field;
+            }
+
+            var targetProperty = componentProperty.FindPropertyRelative("target");
+            if (targetProperty == null)
+            {
+                return field;
+            }
+
+            void UpdateEnabled()
+            {
+                field.SetEnabled(targetProperty.objectReferenceValue is not RectTransform);
+            }
+
+            UpdateEnabled();
+            field.TrackPropertyValue(targetProperty.Copy(), _ => UpdateEnabled());
+
+            return field;
+        }
+
+        static bool IsTransformPositionAnimation(System.Type type)
+        {
+            while (type != null)
+            {
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Components.TransformPositionAnimationBase<,>))
+                {
+                    return true;
+                }
+                type = type.BaseType;
+            }
+            return false;
+        }
+
         VisualElement CreateTargetPropertyField(SerializedProperty property)
         {
             if (property.name != "target")
