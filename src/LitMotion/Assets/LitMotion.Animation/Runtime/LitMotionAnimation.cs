@@ -9,24 +9,38 @@ namespace LitMotion.Animation
     [HelpURL("https://annulusgames.github.io/LitMotion")]
     public sealed class LitMotionAnimation : MonoBehaviour, ISerializationCallbackReceiver
     {
-        enum AutoPlayMode
+        public enum AutoPlayMode
         {
             None,
             OnStart,
             OnEnable
         }
 
-        enum AnimationMode
+        public enum AnimationMode
         {
             Parallel,
             Sequential
         }
+
+        // Devsisters Custom: 무한 루프 모션들의 모양을 동기화할 때 사용할 전역 시간 종류.
+        public enum GlobalTimeKind
+        {
+            None,
+            Time,
+            UnscaledTime,
+            Realtime
+        }
+        // Devsisters Custom
 
         // Devsisters Custom: AutoPlayMode.OnStart대신 OnEnable를 기본으로 설정
         [SerializeField] AutoPlayMode autoPlayMode = AutoPlayMode.OnEnable;
         // Devsisters Custom
 
         [SerializeField] AnimationMode animationMode;
+
+        // Devsisters Custom: Parallel 모드에서 무한 루프 모션들의 모양을 동기화하기 위해 재생 시점을 전역 시간으로 맞춘다.
+        [SerializeField] GlobalTimeKind globalTimeKind;
+        // Devsisters Custom
 
         [SerializeReference]
         LitMotionAnimationComponent[] components;
@@ -38,6 +52,12 @@ namespace LitMotion.Animation
         [HideInInspector, SerializeField] int version;
 
         public IReadOnlyList<LitMotionAnimationComponent> Components => components;
+
+        public AutoPlayMode AutoPlay => autoPlayMode;
+
+        public AnimationMode Animation => animationMode;
+
+        public GlobalTimeKind GlobalTime => globalTimeKind;
 
         public bool IsStopped { get; private set; }
 
@@ -137,6 +157,13 @@ namespace LitMotion.Animation
                             if (handle.IsActive())
                             {
                                 handle.Preserve();
+
+                                // 무한 루프 모션들의 모양을 동기화하기 위해 재생 시점을 전역 시간으로 맞춘다.
+                                // 에디트 모드에서는 전역 시간이 의미가 없으므로 재생 중일 때만 적용한다.
+                                if (Application.isPlaying && globalTimeKind != GlobalTimeKind.None && handle.Loops < 0)
+                                {
+                                    handle.Time = GetGlobalTime();
+                                }
                             }
 
                             playingComponents.Add(component);
@@ -148,6 +175,17 @@ namespace LitMotion.Animation
                     }
                     break;
             }
+        }
+
+        float GetGlobalTime()
+        {
+            return globalTimeKind switch
+            {
+                GlobalTimeKind.Time => Time.time,
+                GlobalTimeKind.UnscaledTime => Time.unscaledTime,
+                GlobalTimeKind.Realtime => Time.realtimeSinceStartup,
+                _ => 0f
+            };
         }
 
         public void Pause()

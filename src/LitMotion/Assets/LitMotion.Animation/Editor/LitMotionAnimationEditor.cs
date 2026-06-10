@@ -100,7 +100,21 @@ namespace LitMotion.Animation.Editor
         {
             var box = CreateBox("Settings");
             box.Add(new PropertyField(serializedObject.FindProperty("autoPlayMode")));
-            box.Add(new PropertyField(serializedObject.FindProperty("animationMode")));
+
+            var animationModeProperty = serializedObject.FindProperty("animationMode");
+            box.Add(new PropertyField(animationModeProperty));
+
+            // Devsisters Custom: globalTimeKind는 Parallel 모드에서만 의미가 있으므로 Parallel일 때만 활성화한다.
+            var globalTimeKindField = new PropertyField(serializedObject.FindProperty("globalTimeKind"));
+            void UpdateGlobalTimeKindEnabled()
+            {
+                globalTimeKindField.SetEnabled(animationModeProperty.enumValueIndex == (int)LitMotionAnimation.AnimationMode.Parallel);
+            }
+            UpdateGlobalTimeKindEnabled();
+            globalTimeKindField.TrackPropertyValue(animationModeProperty, _ => UpdateGlobalTimeKindEnabled());
+            box.Add(globalTimeKindField);
+            // Devsisters Custom
+
             return box;
         }
 
