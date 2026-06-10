@@ -66,6 +66,12 @@ namespace LitMotion.Animation
                     {
                         handle.Preserve();
                         MotionManager.GetManagedDataRef(handle, false).OnCompleteAction += MoveNextMotion;
+
+                        // 무한 루프 모션은 완료되지 않아 OnComplete가 발화하지 않으므로, 뒤에 남은 큐의 모션들은 재생되지 못한다.
+                        if (handle.Loops < 0 && queue.Count > 0)
+                        {
+                            Debug.LogError($"An infinitely looping motion ('{queuedComponent.GetType().Name}') was played in a sequential animation. The remaining {queue.Count} motion(s) in the queue will never be played.", this);
+                        }
                     }
 
                     queuedComponent.TrackedHandle = handle;
@@ -173,6 +179,66 @@ namespace LitMotion.Animation
             queue.Clear();
 
             IsStopped = true;
+        }
+
+        /// <summary>
+        /// 재생 중인 애니메이션을 즉시 최종 상태로 만든다.
+        /// 무한 루프 모션은 최종 상태가 없어 완료시킬 수 없으므로, 에러 로그를 남기고 Cancel로 정리한다.
+        /// </summary>
+        public void Complete()
+        {
+            switch (animationMode)
+            {
+                case AnimationMode.Sequential:
+                    // 현재 재생 중인 모션을 완료하면 OnComplete를 통해 MoveNextMotion이 동기적으로 호출되어
+                    // 다음 모션이 재생된다. 큐가 비고 활성 모션이 없어질 때까지 반복한다.
+                    while (TryGetActivePlayingComponent(out var component))
+                    {
+                        if (component.TrackedHandle.TryComplete()) continue;
+
+                        // 무한 루프 모션은 완료할 수 없으므로 Cancel로 정리한 뒤 다음 모션으로 진행한다.
+                        // (Cancel은 OnComplete를 발화하지 않아 MoveNextMotion이 자동 호출되지 않으므로 직접 호출한다.)
+                        CancelInfinitelyLoopingMotion(component);
+                        MoveNextMotion();
+                    }
+                    break;
+                case AnimationMode.Parallel:
+                    foreach (var component in playingComponents.AsSpan())
+                    {
+                        var handle = component.TrackedHandle;
+                        if (!handle.IsActive()) continue;
+                        if (handle.TryComplete()) continue;
+
+                        // 무한 루프 모션은 완료할 수 없으므로 Cancel로 정리한다.
+                        CancelInfinitelyLoopingMotion(component);
+                    }
+                    break;
+            }
+        }
+
+        void CancelInfinitelyLoopingMotion(LitMotionAnimationComponent component)
+        {
+            Debug.LogError($"Cannot complete an infinitely looping motion ('{component.GetType().Name}'). Canceling it instead.", this);
+
+            var handle = component.TrackedHandle;
+            handle.TryCancel();
+            component.OnStop();
+            component.TrackedHandle = handle;
+        }
+
+        bool TryGetActivePlayingComponent(out LitMotionAnimationComponent result)
+        {
+            foreach (var component in playingComponents.AsSpan())
+            {
+                if (component.TrackedHandle.IsActive())
+                {
+                    result = component;
+                    return true;
+                }
+            }
+
+            result = null;
+            return false;
         }
 
         public void Restart()
