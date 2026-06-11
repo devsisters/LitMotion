@@ -99,7 +99,10 @@ namespace LitMotion.Animation.Editor
         VisualElement CreateSettingsPanel()
         {
             var box = CreateBox("Settings");
-            box.Add(new PropertyField(serializedObject.FindProperty("autoPlayMode")));
+
+            // Devsisters Custom: OnStart 선택 시 확인 다이얼로그 표시
+            box.Add(CreateAutoPlayModePropertyField(serializedObject.FindProperty("autoPlayMode")));
+            // Devsisters Custom
 
             var animationModeProperty = serializedObject.FindProperty("animationMode");
             box.Add(new PropertyField(animationModeProperty));

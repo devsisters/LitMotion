@@ -105,6 +105,74 @@ namespace LitMotion.Animation.Editor
             return false;
         }
 
+        VisualElement CreateAutoPlayModePropertyField(SerializedProperty property)
+        {
+            var copiedProperty = property.Copy();
+            var root = new VisualElement();
+            var field = new PropertyField(copiedProperty);
+            root.Add(field);
+
+            // OnStart일 때는 경고 HelpBox를 함께 표시한다.
+            var warningBox = new HelpBox(
+                "OnStart로 설정하면 게임오브젝트가 꺼져도 Tween이 꺼지지 않습니다.",
+                HelpBoxMessageType.Warning);
+            root.Add(warningBox);
+
+            void UpdateWarningBoxVisible(SerializedProperty currentProperty)
+            {
+                warningBox.style.display = currentProperty.enumValueIndex == (int)LitMotionAnimation.AutoPlayMode.OnStart
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
+            }
+
+            UpdateWarningBoxVisible(copiedProperty);
+            warningBox.TrackPropertyValue(copiedProperty, UpdateWarningBoxVisible);
+
+            // OnStart는 게임오브젝트가 비활성화되어도 Tween이 정지되지 않으므로 의도된 선택인지 확인한다.
+            // 콜백 안에서 즉시 프로퍼티를 되돌리면 같은 바인딩 사이클의 write-back이 값을 다시 OnStart로
+            // 덮어쓰므로, 다이얼로그와 되돌리기는 바인딩 갱신이 끝난 뒤로 지연시킨다.
+            var prevValue = copiedProperty.enumValueIndex;
+            var dialogPending = false;
+            field.TrackPropertyValue(copiedProperty, changedProperty =>
+            {
+                var newValue = changedProperty.enumValueIndex;
+                if (newValue == prevValue || dialogPending) return;
+
+                if (newValue != (int)LitMotionAnimation.AutoPlayMode.OnStart)
+                {
+                    prevValue = newValue;
+                    return;
+                }
+
+                dialogPending = true;
+                field.schedule.Execute(() =>
+                {
+                    dialogPending = false;
+
+                    if (EditorUtility.DisplayDialog(
+                        "LitMotion Animation",
+                        "OnStart로 설정하면 게임오브젝트가 꺼져도 Tween이 꺼지지 않습니다.\n이걸 의도하신게 맞나요?",
+                        "예", "아니오"))
+                    {
+                        prevValue = (int)LitMotionAnimation.AutoPlayMode.OnStart;
+                        return;
+                    }
+
+                    // 모달 다이얼로그가 떠 있는 동안 인스펙터가 리바인드되면서 기존 SerializedProperty가
+                    // Dispose될 수 있으므로, 보관해 둔 프로퍼티 대신 실행 시점에 새로 조회해서 되돌린다.
+                    if (target == null) return;
+                    var so = serializedObject;
+                    so.Update();
+                    var autoPlayModeProperty = so.FindProperty("autoPlayMode");
+                    if (autoPlayModeProperty == null) return;
+                    autoPlayModeProperty.enumValueIndex = prevValue;
+                    so.ApplyModifiedProperties();
+                });
+            });
+
+            return root;
+        }
+
         VisualElement CreateTargetPropertyField(SerializedProperty property)
         {
             if (property.name != "target")
