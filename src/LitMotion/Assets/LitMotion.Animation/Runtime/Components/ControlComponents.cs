@@ -71,4 +71,19 @@ namespace LitMotion.Animation.Components
             target.Stop();
         }
     }
+
+    [Serializable]
+    [LitMotionAnimationComponentMenu("Control/Stop LitMotion Animation")]
+    public sealed class StopLitMotionAnimationComponent : LitMotionAnimationComponent
+    {
+        [SerializeField] LitMotionAnimation target;
+
+        public override MotionHandle Play()
+        {
+            if (target != null) target.Stop();
+            return LMotion.Create(0f, 1f, 0f).RunWithoutBinding();
+        }
+
+        public override void OnStop() { }
+    }
 }
