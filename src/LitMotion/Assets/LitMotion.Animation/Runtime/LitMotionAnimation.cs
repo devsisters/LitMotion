@@ -48,8 +48,11 @@ namespace LitMotion.Animation
         readonly Queue<LitMotionAnimationComponent> queue = new();
         FastListCore<LitMotionAnimationComponent> playingComponents;
 
-        [HideInInspector, SerializeField] bool playOnAwake = true;
-        [HideInInspector, SerializeField] int version;
+        // Devsisters Custom: 새로 추가된 컴포넌트가 version 0으로 인식되어 playOnAwake 마이그레이션이
+        // 실행되면 autoPlayMode가 OnStart로 덮어써지므로, 기본값을 마이그레이션 완료 상태로 둔다.
+        [HideInInspector, SerializeField] bool playOnAwake = false;
+        [HideInInspector, SerializeField] int version = 1;
+        // Devsisters Custom
 
         public IReadOnlyList<LitMotionAnimationComponent> Components => components;
 
@@ -334,7 +337,9 @@ namespace LitMotion.Animation
         {
             if (version < 1)
             {
-                autoPlayMode = playOnAwake ? AutoPlayMode.OnStart : AutoPlayMode.None;
+                // Devsisters Custom: 자동재생 마이그레이션 결과를 OnStart 대신 OnEnable로 변환
+                autoPlayMode = playOnAwake ? AutoPlayMode.OnEnable : AutoPlayMode.None;
+                // Devsisters Custom
                 version = 1;
             }
         }
