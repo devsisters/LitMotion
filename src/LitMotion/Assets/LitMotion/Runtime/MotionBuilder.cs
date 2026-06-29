@@ -57,7 +57,7 @@ namespace LitMotion
             buffer.OnCompleteAction = default;
             buffer.OnCancelAction = default;
 
-            buffer.CancelOnError = default;
+            buffer.CancelOnError = true;
             buffer.SkipValuesDuringDelay = default;
             buffer.SkipValuesAfterPlay = default;
 
@@ -86,7 +86,7 @@ namespace LitMotion
         public int Loops = 1;
         public DelayType DelayType;
         public LoopType LoopType;
-        public bool CancelOnError;
+        public bool CancelOnError = true;
         public bool SkipValuesDuringDelay;
         public bool SkipValuesAfterPlay;
         public bool ImmediateBind = true;
@@ -240,7 +240,7 @@ namespace LitMotion
         }
 
         /// <summary>
-        /// Cancel Motion when an exception occurs during Bind processing.
+        /// Cancel Motion when an exception occurs during Bind processing. This is enabled by default.
         /// </summary>
         /// <param name="cancelOnError">Whether to cancel on error</param>
         /// <returns>This builder to allow chaining multiple method calls.</returns>
@@ -249,6 +249,18 @@ namespace LitMotion
         {
             CheckBuffer();
             buffer.CancelOnError = cancelOnError;
+            return this;
+        }
+
+        /// <summary>
+        /// Continue Motion when an exception occurs during Bind processing.
+        /// </summary>
+        /// <returns>This builder to allow chaining multiple method calls.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly MotionBuilder<TValue, TOptions, TAdapter> WithContinueOnError()
+        {
+            CheckBuffer();
+            buffer.CancelOnError = false;
             return this;
         }
 

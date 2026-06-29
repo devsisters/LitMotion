@@ -111,7 +111,7 @@ namespace LitMotion
         [SerializeField] DelayType delayType;
         [SerializeField] int loops = 1;
         [SerializeField] LoopType loopType;
-        [SerializeField] bool cancelOnError;
+        [SerializeField] bool cancelOnError = true;
         [SerializeField] bool skipValuesDuringDelay = true;
         [SerializeField] bool skipValuesAfterPlay = true;
         [SerializeField] bool immediateBind;

@@ -129,17 +129,43 @@ namespace LitMotion.Tests.Runtime
         }
 
         [UnityTest]
-        public IEnumerator Test_WithCancelOnError()
+        public IEnumerator Test_CancelOnError_Default()
         {
             LogAssert.ignoreFailingMessages = true;
             var completed = false;
             LMotion.Create(0f, 10f, 0.5f)
-                .WithCancelOnError()
                 .WithOnComplete(() => completed = true)
                 .WithImmediateBind(false)
                 .Bind(x => throw new Exception("Test"));
             yield return new WaitForSeconds(0.7f);
             Assert.IsFalse(completed);
+            LogAssert.ignoreFailingMessages = false;
+        }
+
+        [UnityTest]
+        public IEnumerator Test_WithContinueOnError()
+        {
+            LogAssert.ignoreFailingMessages = true;
+            var completed = false;
+            var thrown = false;
+            var updateCount = 0;
+            LMotion.Create(0f, 10f, 0.5f)
+                .WithContinueOnError()
+                .WithOnComplete(() => completed = true)
+                .WithImmediateBind(false)
+                .Bind(x =>
+                {
+                    updateCount++;
+                    if (!thrown)
+                    {
+                        thrown = true;
+                        throw new Exception("Test");
+                    }
+                });
+            yield return new WaitForSeconds(0.7f);
+            Assert.IsTrue(thrown);
+            Assert.Greater(updateCount, 1);
+            Assert.IsTrue(completed);
             LogAssert.ignoreFailingMessages = false;
         }
 
