@@ -60,6 +60,7 @@ namespace LitMotion.Tests.Runtime
             var value = 0f;
             var handle = LMotion.Create(1f, 2f, 0.5f)
                 .WithDelay(0.5f, skipValuesDuringDelay: false)
+                .WithImmediateBind(false)
                 .Bind(x => value = x);
             yield return new WaitForSeconds(0.1f);
             Assert.That(value, Is.GreaterThan(0.9f));
@@ -68,6 +69,7 @@ namespace LitMotion.Tests.Runtime
             value = 0f;
             handle = LMotion.Create(1f, 2f, 0.5f)
                 .WithDelay(0.5f, skipValuesDuringDelay: true)
+                .WithImmediateBind(false)
                 .Bind(x => value = x);
             yield return new WaitForSeconds(0.1f);
             Assert.That(value, Is.LessThan(0.9f));

@@ -136,6 +136,7 @@ namespace LitMotion.Tests.Runtime
             LMotion.Create(0f, 10f, 0.5f)
                 .WithCancelOnError()
                 .WithOnComplete(() => completed = true)
+                .WithImmediateBind(false)
                 .Bind(x => throw new Exception("Test"));
             yield return new WaitForSeconds(0.7f);
             Assert.IsFalse(completed);
