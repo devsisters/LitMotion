@@ -64,6 +64,29 @@ namespace LitMotion.Animation
 
         public bool IsStopped { get; private set; }
 
+        /// <summary>
+        /// Finds the first animation component of the requested type.
+        /// </summary>
+        /// <param name="result">The component when found; otherwise null.</param>
+        /// <param name="displayName">
+        /// Optional display name used to distinguish multiple components of the same type.
+        /// </param>
+        public bool TryGetAnimationComponent<T>(out T result, string displayName = null)
+            where T : LitMotionAnimationComponent
+        {
+            foreach (var component in components)
+            {
+                if (component is not T typedComponent) continue;
+                if (displayName != null && component.DisplayName != displayName) continue;
+
+                result = typedComponent;
+                return true;
+            }
+
+            result = null;
+            return false;
+        }
+
         void OnEnable()
         {
             if (autoPlayMode == AutoPlayMode.OnEnable)

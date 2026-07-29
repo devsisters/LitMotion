@@ -18,6 +18,32 @@ namespace LitMotion.Animation
 
         TValue startValue;
 
+        /// <summary>
+        /// Settings used to create the motion.
+        /// Changes made while a motion is playing are applied on the next play.
+        /// </summary>
+        /// <example>
+        /// Override the relative position before playing the animation.
+        /// The relative option itself is configured in the Inspector.
+        /// <code><![CDATA[
+        /// if (animation.TryGetAnimationComponent<TransformPositionAnimation>(out var positionAnimation))
+        /// {
+        ///     positionAnimation.Settings = positionAnimation.Settings with
+        ///     {
+        ///         StartValue = Vector3.zero,
+        ///         EndValue = relativePosition,
+        ///     };
+        ///
+        ///     animation.Play();
+        /// }
+        /// ]]></code>
+        /// </example>
+        public SerializableMotionSettings<TValue, TOptions> Settings
+        {
+            get => settings;
+            set => settings = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
         public override void OnStop()
         {
             if (target == null) return;
